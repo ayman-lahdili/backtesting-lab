@@ -7,7 +7,6 @@ from sklearn.linear_model import LinearRegression
 from statsmodels.tsa.stattools import coint
 
 
-
 class Pairs_Mean_Reversion_OLS(Backtest):
     def run_mr_strategy(self):
         ''' Backtesting an SMA-based strategy.
@@ -59,6 +58,8 @@ class Pairs_Mean_Reversion_OLS(Backtest):
             S1_log_price = np.log(data[S1]['open'].iloc[bar])
             S2_log_price = np.log(data[S2]['open'].iloc[bar])
 
+            # spread_t = S1_log_price - (S2_log_price)
+
             spread_t = S1_log_price - (gamma * S2_log_price) - mu
 
             if bar == lookback:
@@ -75,8 +76,11 @@ class Pairs_Mean_Reversion_OLS(Backtest):
 
             z_score_t = (spread_t - spread_mean) / spread_std
 
-            # threshold = 0.7
-            threshold = 20.6
+            # z_score_t = spread_t
+
+            threshold = 0.7
+            # threshold = 0.04 #not normalized
+            # threshold = 20.6
 
             plot_z_date.append(self.get_date_price(S1, bar)[0])
             plot_z_score.append(z_score_t)
@@ -84,31 +88,31 @@ class Pairs_Mean_Reversion_OLS(Backtest):
 
             if S1_position == 0:
                 if z_score_t < -threshold:
-                    # self.place_buy_order(S1, bar, units=1)
+                    self.place_buy_order(S1, bar, units=25)
                     # self.place_buy_order(S2, bar, units=1)
-                    self.place_buy_order(S1, bar, amount=self.net_wealth)
+                    # self.place_buy_order(S1, bar, amount=self.net_wealth)
                     S1_position = 1
                     if S2_position == 1:
-                        # self.place_sell_order(S2, bar, units=1)
+                        self.place_sell_order(S2, bar, units=25)
                         S2_position = 0
             
             if S1_position == 1:
                 if z_score_t > threshold:
-                    # self.place_sell_order(S1, bar, units=1)
+                    self.place_sell_order(S1, bar, units=25)
                     # self.place_sell_order(S2, bar, units=1)
-                    self.place_sell_order(S1, bar, amount=self.net_wealth)
+                    # self.place_sell_order(S1, bar, amount=self.net_wealth)
                     S1_position = 0
                     if S2_position == 0:
-                        # self.place_buy_order(S2, bar, units=1)
+                        self.place_buy_order(S2, bar, units=25)
                         S2_position = 1
-
-            
+        
+        
         
         plot_z_score = pd.Series(data=plot_z_score, index=plot_z_date, name='z-score')
         plot_pvalue = pd.Series(data=plot_pvalue, index=plot_z_date, name='p_value')
         plot_gamma = pd.Series(data=plot_gamma, index=plot_z_date, name='gamma')
         
-        self.add_plot_separate(plot_z_score, plot_pvalue, plot_gamma)      
+        self.add_plot_separate(plot_z_score)#, plot_pvalue, plot_gamma)      
         self.close_out(bar)
 
     
@@ -118,7 +122,7 @@ if __name__ == '__main__':
     # bt = Pairs_Mean_Reversion_OLS(['amd', 'tsla'], '10min', '2022-02-14', '2022-02-28', 10000, verbose=False)
     # bt = Pairs_Mean_Reversion_OLS(['gdx', 'gld'], 'daily', '2020-10-01', '2022-04-28', 10000, verbose=False)
     # bt = Pairs_Mean_Reversion_OLS(['paa', 'pagp'], 'daily', '2020-10-01', '2022-04-28', 10000, verbose=False)
-    bt = Pairs_Mean_Reversion_OLS(['EWH', 'EWZ'], 'daily', '2000-08-01', '2002-01-31', 10000, verbose=False)
+    bt = Pairs_Mean_Reversion_OLS(['EWH', 'EWZ'], 'daily', '2000-08-01', '2002-01-31', 1000, verbose=False)
     bt.run_mr_strategy()
     print(bt.stats)
     # print(bt.data)

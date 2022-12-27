@@ -115,7 +115,7 @@ def plot_strategy(
         name='Net equity',
         hovertemplate="<br>".join([
                 "<b>%{customdata}</b><br>"
-                "<b>price</b>: %{y}$"
+                "<b>value</b>: %{y}$"
                 ])
         ),
         row=1, col=1)
@@ -131,7 +131,7 @@ def plot_strategy(
         name='Net balance',
         hovertemplate="<br>".join([
                 "<b>%{customdata}</b><br>"
-                "<b>price</b>: %{y}$"
+                "<b>value</b>: %{y}$"
                 ])
         ),
         row=1, col=1)

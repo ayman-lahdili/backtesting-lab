@@ -120,18 +120,18 @@ class Pairs_Mean_Reversion_OLS(Backtest):
             # threshold = 0.7
             # threshold = 2.2
             # threshold = 0.5
-            threshold = 0.002
+            threshold = 0.002 #Jackpot EWH EWZ
             # threshold = 0.00076 #daily for gld 
             # threshold = 40e-6 #10min tf for gld
             # threshold = 0.002 #daily tf for EWH
             # threshold = 50e-6 #10min tf
-            # threshold = spread_std
+            # threshold = spread_std*0.09 #for EWZ & EWH
 
             plot_z_date.append(self.get_date_price(S1, bar)[0])
             plot_z_score.append(z_score_t)
             plot_gamma.append(gamma)
             plot_mean.append(spread_mean)
-            plot_std.append(spread_std)
+            plot_std.append(spread_std*0.09)
 
 
             if S1_position == 0:
@@ -165,8 +165,8 @@ class Pairs_Mean_Reversion_OLS(Backtest):
         plot_std_up = pd.Series(data=plot_std, index=plot_z_date, name='std')
         plot_std_low = - pd.Series(data=plot_std, index=plot_z_date, name='std')
 
-        # self.add_plot_separate(plot_z_score, plot_std_up, plot_std_low)#, plot_mean, plot_std_up, plot_std_low)
-        self.add_plot_separate(plot_gamma)
+        self.add_plot_separate(plot_z_score, plot_std_up, plot_std_low)#, plot_mean, plot_std_up, plot_std_low)
+        #self.add_plot_separate(plot_gamma)
         self.close_out(bar)
 
     
@@ -175,12 +175,12 @@ if __name__ == '__main__':
     # bt = Pairs_Mean_Reversion_OLS(['pep', 'ko'], 'daily', '2020-01-01', '2022-01-01', 10000, verbose=False)
     # bt = Pairs_Mean_Reversion_OLS(['amd', 'tsla'], '10min', '2022-02-14', '2022-02-28', 10000, verbose=False)
     # bt = Pairs_Mean_Reversion_OLS(['gdx', 'gld'], 'daily', '2020-10-01', '2022-04-28', 10000, verbose=False)
-    bt = Pairs_Mean_Reversion_OLS(['paa', 'pagp'], 'daily', '2020-10-01', '2022-04-28', 10000, verbose=False)
+    # bt = Pairs_Mean_Reversion_OLS(['paa', 'pagp'], 'daily', '2020-10-01', '2022-04-28', 10000, verbose=False)
     # bt = Pairs_Mean_Reversion_OLS(['gdx', 'gld'], '10min', '2022-01-01', '2022-06-20', 10000, verbose=False)
-    # bt = Pairs_Mean_Reversion_OLS(['EWH', 'EWZ'], 'daily', '2000-08-01', '2002-01-31', 10000, verbose=False)
+    bt = Pairs_Mean_Reversion_OLS(['EWH', 'EWZ'], 'daily', '2000-08-01', '2002-01-31', 10000, verbose=False)
     bt.run_mr_strategy()
     print(bt.stats)
     # print(bt.data)
     # print(bt.statistics())
-    bt.plot()
+    # bt.plot()
     # bt.scatter_plot()
