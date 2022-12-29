@@ -11,7 +11,7 @@ import requests
 
 from ._plotting import plot_strategy, plot_scatter
 from ._stats import performance
-from ._TIINGO_TOKEN import TOKEN, HEADERS
+from ._TIINGO_TOKEN import TOKEN, HEADERS ###Add a file in the same directory as backtester.py named as TIINGO_TOKEN
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
