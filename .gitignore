@@ -1,2 +1,6 @@
 /KALMAN_pairs_mean_reversion.py
-/KALMAN_UPDATE_pairs_mean_reversion
+/KALMAN_UPDATE_pairs_mean_reversion.py
+/OLS_pairs_mean_rev_1.py
+/OLS_pairs_mean_reversion.py
+/sma_crossover.py
+/TODO.txt
