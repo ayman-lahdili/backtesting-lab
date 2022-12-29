@@ -11,3 +11,6 @@ __pycache__/
 
 # Data files
 *.csv
+
+#TIINGO API TOKEN
+/backtest_logic/_TIINGO_TOKEN.py
