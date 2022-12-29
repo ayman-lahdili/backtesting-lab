@@ -9,5 +9,5 @@ __pycache__/
 /sma_crossover.py
 /TODO.txt
 
-# Data files
+# Data file
 *.csv
