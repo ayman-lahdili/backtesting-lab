@@ -8,3 +8,6 @@ __pycache__/
 /OLS_pairs_mean_reversion.py
 /sma_crossover.py
 /TODO.txt
+
+# Data files
+*.csv
