@@ -1,0 +1,1 @@
+All raw data fetched from the Tiingo API will be saved in this directory
