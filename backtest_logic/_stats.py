@@ -7,6 +7,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     ''' Calculates the stastistics used to measure performance
     '''
 
+
     if 'min' in freq:
         freq = int(freq.split('m')[0])
         min_lookback = str(min_bars * freq) + 'min'
@@ -28,7 +29,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     strategy_ret = np.log(equity).diff()
     strategy_ret = strategy_ret.dropna()
 
-    #benchmark_returns equal ratio in a buy and hold
+    #benchmark_returns equal ratio for each stock in a buy and hold strategy
     benchmark_ret = np.zeros_like(dt[sym]['close'])
     for sym in symbol:
         ratio = 1/len(symbol)
@@ -44,7 +45,8 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     month = (252/12) * (trading_minutes/freq)
     Rfr = Rfr
 
-    #start
+
+    ###Statistics
     abs_start_date = data[symbol[0]]['date'].iloc[0]
     start_date = parser.parse(dt[sym]['date'].iloc[0])
     end_date = parser.parse(dt[sym]['date'].iloc[-1])
@@ -86,6 +88,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     #tradebook stats
     tb = tradebook
     num_trades = tb.shape[0]
+
     try:
         pos = (tb['return'] > 0).value_counts()[True]
         neg = num_trades - pos
@@ -93,6 +96,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     except KeyError:
         pos = 0
         win_rate = None
+    
     best = tb['return'].max()
     worst = tb['return'].min()
     avg = tb['return'].mean()
@@ -100,6 +104,8 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     min_dur = tb['duration'].min()
     avg_dur = tb['duration'].mean()
 
+
+    #Add each statistics to a pd.Series
     stats.loc['Min. lookback'] = min_lookback
     stats.loc['Start (- min lookback)'] = start_date
     stats.loc['End'] = end_date
@@ -127,6 +133,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     stats.loc['Min. Trade Duration'] = min_dur
     stats.loc['Avg. Trade Duration'] = avg_dur
     stats.loc['Strategy'] = name
+
 
     return stats
 

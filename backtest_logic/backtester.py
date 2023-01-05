@@ -11,13 +11,15 @@ import requests
 
 from ._plotting import plot_strategy, plot_scatter
 from ._stats import performance
-from ._TIINGO_TOKEN import TOKEN, HEADERS ###Add a file in the same directory as backtester.py named as TIINGO_TOKEN
+from ._TIINGO_TOKEN import TOKEN ###Add a file in the same directory as backtester.py named as TIINGO_TOKEN
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class Data():
+
+    @staticmethod
     def _request_data(ticker: str, freq: str, start: str, end: str) -> pd.DataFrame:
         ''' 
         Historical Intraday Prices Endpoint from IEX:
@@ -29,25 +31,29 @@ class Data():
         ticker: str
             unique ticker symbol
             
-        freq: str
+        freq: 'str'
             The frequency of the data can be in the following format.
-            \tmin: str
-            \t\tex: '1min', '10min', '300min', ..., '{n}min' (n: int)
-            \t\tn < 2563
-            \thour: str
-            \t\tex: '1hour', '10hour', '300hour', ..., '{n}hour' (n: int) 
-            \t\tn < 24
-            \tdaily: str
-            \t\tex: 'daily' *no more than daily timeframe can be sampled
+                min: str
+                    ex: '1min', '10min', '300min', ..., '{n}min' (n: int)
+                    n < 2563
+                hour: str
+                    ex: '1hour', '10hour', '300hour', ..., '{n}hour' (n: int) 
+                    n < 24
+                daily: str
+                    ex: 'daily' *no more than daily timeframe can be sampled
         '''
         ticker = ticker.upper()
         rel_path = f"raw_market_data/{ticker}_{start}_{end}.csv"
         data_file_path = os.path.join(script_dir, rel_path)
 
         if freq == 'daily':
-            requestResponse = requests.get(f"https://api.tiingo.com/tiingo/daily/{ticker}/prices?startDate={start}&endDate={end}&token={TOKEN}", headers=HEADERS)
+            requestResponse = requests.get(f"https://api.tiingo.com/tiingo/daily/{ticker}/prices?startDate={start}&endDate={end}&token={TOKEN}", headers={
+                'Content-Type': 'application/json'
+            })
         else:
-            requestResponse = requests.get(f"https://api.tiingo.com/iex/{ticker}/prices?startDate={start}&endDate={end}&resampleFreq={freq}&columns=open,high,low,close,volume&token={TOKEN}", headers=HEADERS)
+            requestResponse = requests.get(f"https://api.tiingo.com/iex/{ticker}/prices?startDate={start}&endDate={end}&resampleFreq={freq}&columns=open,high,low,close,volume&token={TOKEN}", headers={
+                'Content-Type': 'application/json'
+            })
         
         #Verification 1: check input timeframe unit
         try:
@@ -86,6 +92,7 @@ class Data():
        
         return raw
 
+    @staticmethod
     def raw_data(ticker: str, freq: str, start: str, end:str) -> pd.DataFrame:
         """
         Returns a pandas.DataFrame() of the OHLCV market Data of a ticker.
@@ -97,15 +104,14 @@ class Data():
         
         freq: str
             The frequency of the data can be in the following format.
-            \tmin: str
-            \t\tex: '1min', '10min', '300min', ..., '{n}min' (n: int)
-            \t\tn < 2563
-            \thour: str
-            \t\tex: '1hour', '10hour', '300hour', ..., '{n}hour' (n: int) 
-            \t\tn < 24
-            \tdaily: str
-            \t\tex: 'daily' *no more than daily timeframe can be sampled
-        '''
+                min: str
+                    ex: '1min', '10min', '300min', ..., '{n}min' (n: int)
+                    n < 2563
+                hour: str
+                    ex: '1hour', '10hour', '300hour', ..., '{n}hour' (n: int) 
+                    n < 24
+                daily: str
+                    ex: 'daily' *no more than daily timeframe can be sampled
         """
         ticker = ticker.upper()
         rel_path = f"raw_market_data/{ticker}_{start}_{end}.csv"
@@ -151,7 +157,7 @@ class Data():
                     Data._request_data(ticker, freq, start, end)
                     raw = pd.read_csv(data_file_path)
  
-            #if the start and end 
+            #if the start and end are the same
             except IndexError:
                 Data._request_data(ticker, freq, start, end)
                 raw = pd.read_csv(data_file_path)
@@ -257,6 +263,7 @@ class Backtest(object):
         self.verbose = verbose
         self.same_timeframe  = same_timeframe
         self.min_bars = min_bar
+
         self.get_data()
     
     def __repr__(self) -> str:
@@ -283,9 +290,9 @@ class Backtest(object):
         for sym in self.symbol:
             raw[sym] = Data.raw_data(sym, self.freq, self.start, self.end)
 
-#remove all non trading hours
-# for sym in self.symbol:
-#     raw[sym] = raw[sym][raw[sym]['volume'] != 0].reset_index(drop=True)
+        #remove all non trading hours
+        # for sym in self.symbol:
+        #     raw[sym] = raw[sym][raw[sym]['volume'] != 0].reset_index(drop=True)
 
         if self.same_timeframe:         #remove any differente dates from each dataset
             compare_date = [pd.Index(raw[sym]['date']) for sym in self.symbol]
@@ -366,7 +373,7 @@ class Backtest(object):
         '''
         first_symbol = list(self.data.keys())[0]
         date, _ = self.get_date_price(first_symbol, bar)
-        print(f'{date} | current balance {self.amount:.2f}')  ####ADD currencie
+        print(f'{date} | current balance {self.amount:.2f}')  ####ADD currency
     
     def get_net_wealth(self, bar):
         ''' Print out current cash balance info.
@@ -502,7 +509,7 @@ class Backtest(object):
 
 
     def close_out(self, bar):
-        ''' Closing out positions.
+        ''' Closing out positions. Needs to be executed before calculating the statistics
         
         Attributes
         ==========
@@ -556,6 +563,7 @@ class Backtest(object):
             self.tradebook['duration'] = np.nan
         
         self.orderbook = pd.DataFrame(self.orderbook)
+
         self._statistics()  #compute statistics
 
     def _statistics(self) -> pd.Series:
@@ -610,28 +618,3 @@ class Backtest(object):
         fig = plot_scatter(symbol=self.symbol, data=self.data)
 
         fig.show()
-
-         
-
-if __name__ == '__main__':
-    bt = Backtest(['amd', 'tsla'], '10min', '2022-02-14', '2022-02-28', 10000)
-    print(bt.data)
-    bt.place_buy_order('AMD', 330, amount=bt.net_wealth)
-    bt.place_sell_order('AMD', 420, amount=bt.net_wealth)
-    bt.place_buy_order('AMD', 430, amount=bt.net_wealth)
-    bt.close_out(437)
-    print(bt.orderbook)
-    print(bt.pnl)
-    #bt.plot()
-
-    # ###daily
-    # bt = Backtest(['amd', 'tsla'], 'daily', '2022-02-14', '2022-05-28', 10000)
-    # print(bt.data)
-    # bt.place_buy_order('AMD', 10, amount=bt.net_wealth)
-    # bt.place_sell_order('AMD', 25, amount=bt.net_wealth)
-    # bt.place_buy_order('AMD', 50, amount=bt.net_wealth)
-    # bt.close_out(72)
-    # print(bt.tradebook)
-    # print(bt.statistics())
-    # bt.plot()
-
