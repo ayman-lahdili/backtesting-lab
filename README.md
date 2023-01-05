@@ -121,6 +121,6 @@ Avg. Trade Duration                 4 days 05:36:00
 Strategy                              SMA_Crossover
 ```
 
-![plot](/sma_10_25_msft.png)
+![plot](./sma_10_25_msft.png)
 
 
