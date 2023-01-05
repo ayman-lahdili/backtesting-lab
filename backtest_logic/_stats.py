@@ -61,9 +61,10 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
 
     #max dd
     roll_max = strategy_ret.expanding(min_periods=1).max()
-    daily_dd = (strategy_ret/roll_max) - 1
+    daily_dd = (strategy_ret-roll_max)
     dd = daily_dd.expanding(min_periods=1).min()
     mdd = dd.min()
+
     try:
         mdd_date = parser.parse(dd.idxmin())
     except TypeError:
@@ -119,7 +120,7 @@ def performance(name: str, symbol: list, data: dict, equity: pd.Series, tradeboo
     stats.loc['Sharpe ratio'] = sharpe
     stats.loc['Sortino Ratio '] = sortino
     stats.loc['Calmar Ratio'] = calmar
-    stats.loc['Max. Drawdown [%]'] = mdd
+    stats.loc['Max. Drawdown [%]'] = mdd * 100
     stats.loc['Max. Drawdown date'] = mdd_date
     stats.loc['Max. Drawdown Duration'] = mdd_d
     stats.loc['Max. Drawdown start'] = dd_start
