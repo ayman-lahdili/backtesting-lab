@@ -127,7 +127,7 @@ class Data():
             '''
             return df[df==dt].index.values
         
-        def to_seconds(t: str):
+        def to_seconds(t: str) -> int:
             ''' supports only {}min and {}hour
             '''
             if 'min' in t:
